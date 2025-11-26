@@ -4,12 +4,13 @@ using UnityEngine;
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 public class World : MonoBehaviour
 {
-    [SerializeField] int size = 4;
-    int chunkSize = 10; // world is subdivided into 10x10 chunks
-    int mapSize;
+    [SerializeField] int worldSize = 4; // a grid of 4 by 4 chunks
+    [SerializeField] int chunkSize = 10; // chunk is 10 units by 10 units
+    [SerializeField] float cellSize = 1f; // size of each cell in units
     float[,] density;
-    float noiseThreshold = 0.6f;
-    float noiseScale = 0.1f;
+    [SerializeField][Range(0f, 1f)] float noiseThreshold = 0.6f;
+    [SerializeField] float noiseScale = 0.1f;
+    int mapResolution; // total number of cells per map side
 
     Mesh mesh;
     MeshFilter meshFilter;
@@ -21,25 +22,34 @@ public class World : MonoBehaviour
 
     void Start()
     {
-        mapSize = size * chunkSize;
+        mapResolution = worldSize * chunkSize;
         InitializeDensity();
         MarchingSquares();
     }
 
-    void OnDrawGizmos()
-    {
-        if (density == null)
-            return;
-        for (int i = 0; i <= mapSize; i++)
-        {
-            for (int j = 0; j <= mapSize; j++)
-            {
-                float discreteNoise = density[i, j] > noiseThreshold ? 1f : 0f;
-                Gizmos.color = new Color(discreteNoise, discreteNoise, discreteNoise);
-                Gizmos.DrawSphere(new Vector3(i, j, 0), 0.1f);
-            }
-        }
-    }
+    // void OnDrawGizmos()
+    // {
+    //     if (density == null)
+    //         return;
+
+    //     float mapWidth = size * chunkSize;
+    //     float mapHeight = size * chunkSize;
+
+    //     float cellWidth = mapWidth / mapResolution;
+    //     float cellHeight = mapHeight / mapResolution;
+
+    //     for (int i = 0; i <= mapResolution; i++)
+    //     {
+    //         for (int j = 0; j <= mapResolution; j++)
+    //         {
+    //             float x = i * cellWidth;
+    //             float y = j * cellHeight;
+    //             float discreteNoise = density[i, j] > noiseThreshold ? 1f : 0f;
+    //             Gizmos.color = new Color(discreteNoise, discreteNoise, discreteNoise);
+    //             Gizmos.DrawSphere(new Vector3(x, y, 0), 0.1f);
+    //         }
+    //     }
+    // }
 
     void OnGUI()
     {
@@ -52,14 +62,14 @@ public class World : MonoBehaviour
 
     void InitializeDensity()
     {
-        density = new float[mapSize + 1, mapSize + 1];
+        density = new float[mapResolution + 1, mapResolution + 1];
 
         float randomOffsetX = Random.Range(-256f, 256f);
         float randomOffsetY = Random.Range(-256f, 256f);
 
-        for (int i = 0; i <= mapSize; ++i)
+        for (int i = 0; i <= mapResolution; ++i)
         {
-            for (int j = 0; j <= mapSize; ++j)
+            for (int j = 0; j <= mapResolution; ++j)
             {
                 density[i, j] = Mathf.PerlinNoise((randomOffsetX + i) * noiseScale, (randomOffsetY + j) * noiseScale);
             }
@@ -81,9 +91,9 @@ public class World : MonoBehaviour
             triangles.Add(startIndex + 2);
         }
 
-        for (int i = 0; i < mapSize; ++i)
+        for (int i = 0; i < mapResolution; ++i)
         {
-            for (int j = 0; j < mapSize; ++j)
+            for (int j = 0; j < mapResolution; ++j)
             {
                 bool a = density[i, j] <= noiseThreshold;
                 bool b = density[i + 1, j] <= noiseThreshold;
@@ -94,11 +104,12 @@ public class World : MonoBehaviour
                 //|  |
                 //a--b
 
-                Vector3 bottomLeft = new Vector3(i, j, 0);
-                Vector3 bottomRight = new Vector3(i + 1, j, 0);
-                Vector3 topRight = new Vector3(i + 1, j + 1, 0);
-                Vector3 topLeft = new Vector3(i, j + 1, 0);
 
+                float x = i * cellSize; float y = j * cellSize;
+                Vector3 bottomLeft = new Vector3(x, y, 0);
+                Vector3 bottomRight = new Vector3(x + cellSize, y, 0);
+                Vector3 topRight = new Vector3(x + cellSize, y + cellSize, 0);
+                Vector3 topLeft = new Vector3(x, y + cellSize, 0);
                 Vector3 centreBottom = Vector3.Lerp(bottomLeft, bottomRight, 0.5f);
                 Vector3 centreRight = Vector3.Lerp(bottomRight, topRight, 0.5f);
                 Vector3 centreTop = Vector3.Lerp(topRight, topLeft, 0.5f);
@@ -207,16 +218,16 @@ public class World : MonoBehaviour
 
     public void Dig(Vector3 worldPos)
     {
-        int x = Mathf.Clamp(Mathf.RoundToInt(worldPos.x), 0, mapSize);
-        int y = Mathf.Clamp(Mathf.RoundToInt(worldPos.y), 0, mapSize);
+        int x = Mathf.Clamp(Mathf.RoundToInt(worldPos.x), 0, mapResolution);
+        int y = Mathf.Clamp(Mathf.RoundToInt(worldPos.y), 0, mapResolution);
         density[x, y] = 1f;
         MarchingSquares(); // recalculate 4 neighbours only, same for fill
     }
 
     public void Fill(Vector3 worldPos)
     {
-        int x = Mathf.Clamp(Mathf.RoundToInt(worldPos.x), 0, mapSize);
-        int y = Mathf.Clamp(Mathf.RoundToInt(worldPos.y), 0, mapSize);
+        int x = Mathf.Clamp(Mathf.RoundToInt(worldPos.x), 0, mapResolution);
+        int y = Mathf.Clamp(Mathf.RoundToInt(worldPos.y), 0, mapResolution);
         density[x, y] = 0f;
         MarchingSquares();
     }
