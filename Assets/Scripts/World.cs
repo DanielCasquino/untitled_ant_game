@@ -14,10 +14,12 @@ public class World : MonoBehaviour
 
     Mesh mesh;
     MeshFilter meshFilter;
+    MeshRenderer meshRenderer;
 
     void Awake()
     {
         meshFilter = GetComponent<MeshFilter>();
+        meshRenderer = GetComponent<MeshRenderer>();
     }
 
     void Start()
@@ -89,6 +91,14 @@ public class World : MonoBehaviour
             triangles.Add(startIndex);
             triangles.Add(startIndex + 1);
             triangles.Add(startIndex + 2);
+            
+            Vector2[] edgePoints = new Vector2[3];
+            edgePoints[0] = r;
+            edgePoints[1] = q;
+            edgePoints[2] = p;
+
+            EdgeCollider2D ec = gameObject.AddComponent<EdgeCollider2D>();
+            ec.points = edgePoints;
         }
 
         for (int i = 0; i < mapResolution; ++i)
@@ -115,7 +125,7 @@ public class World : MonoBehaviour
                 Vector3 centreTop = Vector3.Lerp(topRight, topLeft, 0.5f);
                 Vector3 centreLeft = Vector3.Lerp(topLeft, bottomLeft, 0.5f);
 
-                int config = 0;
+                int config = 0; 
 
                 if (a)
                     config |= 1;
