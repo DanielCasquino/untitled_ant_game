@@ -16,7 +16,7 @@ public class PlayerCursor : MonoBehaviour
         Vector2 halfScreen = new Vector2(Screen.width / 2f, Screen.height / 2f);
 
         float relativeRadius = Screen.width * cursorWidthScreenProportion;
-        Vector2 screenSpaceCursor = mousePos;
+        Vector2 screenSpaceCursor = (mousePos - halfScreen).normalized * relativeRadius + halfScreen;
 
         Vector3 worldPos = Camera.main.ScreenToWorldPoint(new Vector3(screenSpaceCursor.x, screenSpaceCursor.y, Camera.main.nearClipPlane));
         transform.position = new Vector3(worldPos.x, worldPos.y, 0f);
