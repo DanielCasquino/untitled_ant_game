@@ -6,6 +6,7 @@ public class EdgeColliderPool : MonoBehaviour
     [SerializeField] int poolSize = 10;
     List<EdgeCollider2D> colliderPool;
     int currentIndex = 0;
+    [SerializeField] LayerMask layerMask;
 
     void Awake()
     {
@@ -13,6 +14,15 @@ public class EdgeColliderPool : MonoBehaviour
         for (int i = 0; i < poolSize; ++i)
         {
             GameObject colliderObj = new GameObject("EdgeCollider_" + colliderPool.Count);
+            // Assign the first set layer from the LayerMask
+            int layerNumber = 0;
+            int layerMaskValue = layerMask.value;
+            while (layerMaskValue > 0 && (layerMaskValue & 1) == 0)
+            {
+                layerNumber++;
+                layerMaskValue = layerMaskValue >> 1;
+            }
+            colliderObj.layer = layerNumber;
             colliderObj.transform.parent = transform;
             EdgeCollider2D edgeCollider = colliderObj.AddComponent<EdgeCollider2D>();
             edgeCollider.enabled = false;
@@ -33,6 +43,7 @@ public class EdgeColliderPool : MonoBehaviour
 
         EdgeCollider2D collider = colliderPool[currentIndex];
         currentIndex++;
+        collider.enabled = true;
         return collider;
     }
 }

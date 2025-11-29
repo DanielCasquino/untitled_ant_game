@@ -10,12 +10,12 @@ GameObject:
   m_Component:
   - component: {fileID: 7928506322161080356}
   - component: {fileID: 7345141689983038811}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Colliders
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &7928506322161080356
 Transform:
@@ -45,6 +45,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   poolSize: 10
+  layerMask:
+    serializedVersion: 2
+    m_Bits: 8
 --- !u!1 &3277136950930283471
 GameObject:
   m_ObjectHideFlags: 0
@@ -57,7 +60,7 @@ GameObject:
   - component: {fileID: 2022682793382886630}
   - component: {fileID: 3090923832408207964}
   - component: {fileID: 5797674228835195326}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Chunk
   m_TagString: Untagged
   m_Icon: {fileID: 0}

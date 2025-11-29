@@ -5,7 +5,7 @@ public class Player : MonoBehaviour
 {
     [SerializeField] PlayerCursor playerCursor;
     PlayerInput playerInput;
-    Rigidbody rb;
+    Rigidbody2D rb;
     public UnityEvent<Vector3> whenPlayerDigged;
     public UnityEvent<Vector3> whenPlayerFilled;
     [SerializeField] float speed = 4f;
@@ -13,7 +13,7 @@ public class Player : MonoBehaviour
     void Awake()
     {
         playerInput = GetComponent<PlayerInput>();
-        rb = GetComponent<Rigidbody>();
+        rb = GetComponent<Rigidbody2D>();
     }
 
     void OnEnable()
@@ -33,7 +33,7 @@ public class Player : MonoBehaviour
         playerCursor.SetMousePosition(playerInput.mousePosition);
 
         Vector2 m = playerInput.playerMovement;
-        rb.MovePosition(rb.position + new Vector3(m.x, m.y, 0) * Time.fixedDeltaTime * speed);
+        rb.MovePosition(rb.position + new Vector2(m.x, m.y) * Time.fixedDeltaTime * speed);
     }
 
     public void OnPlayerLeftClicked()

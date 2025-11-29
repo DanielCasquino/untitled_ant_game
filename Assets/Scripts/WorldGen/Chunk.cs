@@ -106,7 +106,7 @@ public class Chunk : MonoBehaviour
         GenerateDensity();
         GenerateMesh();
         GenerateOutlines();
-        // GenerateEdgeColliders();
+        GenerateEdgeColliders();
     }
 
     public void GenerateDensity()
@@ -258,37 +258,37 @@ public class Chunk : MonoBehaviour
     public void GenerateEdgeColliders()
     {
         edgeColliderPool.DisableAllColliders();
-        for (int i = 0; i < meshData.outlines.Count; i++)
+        foreach (List<int> outline in meshData.outlines)
         {
-            List<int> outline = meshData.outlines[i];
             EdgeCollider2D edgeCollider = edgeColliderPool.GetNextCollider();
             if (edgeCollider == null)
                 continue; // 10 for now
-
-            Vector2[] edgePoints = new Vector2[outline.Count];
-            for (int j = 0; j < outline.Count; j++)
+            Vector2[] edgePoints = new Vector2[outline.Count + 1];
+            for (int i = 0; i < outline.Count; i++)
             {
-                Vector3 vertex = meshData.vertices[outline[j]];
-                edgePoints[j] = new Vector2(vertex.x, vertex.y);
+                Vector3 vertex = meshData.vertices[outline[i]];
+                edgePoints[i] = new Vector2(transform.position.x + vertex.x, transform.position.y + vertex.y);
             }
+            edgePoints[outline.Count] = edgePoints[0];
             edgeCollider.points = edgePoints;
             edgeCollider.enabled = true;
         }
+
     }
 
     public void GenerateOutlines()
     {
-        for (int vertexIndex = 0; vertexIndex < meshData.vertices.Count; vertexIndex++)
+        for (int i = 0; i < meshData.vertices.Count; i++)
         {
-            if (meshData.checkedVertices.Contains(vertexIndex))
+            if (meshData.checkedVertices.Contains(i))
                 continue;
 
-            int connectedVertex = GetConnectedOutlineVertex(vertexIndex);
+            int connectedVertex = GetConnectedOutlineVertex(i);
             if (connectedVertex != -1)
             {
                 List<int> newOutline = new List<int>();
-                newOutline.Add(vertexIndex);
-                meshData.checkedVertices.Add(vertexIndex);
+                newOutline.Add(i);
+                meshData.checkedVertices.Add(i);
 
                 int currentVertex = connectedVertex;
                 while (currentVertex != -1)
@@ -296,7 +296,7 @@ public class Chunk : MonoBehaviour
                     newOutline.Add(currentVertex);
                     meshData.checkedVertices.Add(currentVertex);
                     currentVertex = GetConnectedOutlineVertex(currentVertex);
-                    if (currentVertex == vertexIndex)
+                    if (currentVertex == i)
                         break;
                 }
 
@@ -308,12 +308,17 @@ public class Chunk : MonoBehaviour
     int GetConnectedOutlineVertex(int a)
     {
         List<Triangle> trianglesA = meshData.triangleMap[a];
-        foreach (Triangle tri in trianglesA)
+        foreach (Triangle triangle in trianglesA)
         {
-            int[] verts = new int[] { tri.a, tri.b, tri.c };
+            int[] verts = new int[] { triangle.a, triangle.b, triangle.c };
             foreach (int vert in verts)
-                if (vert != a && IsOutlineEdge(a, vert))
-                    return vert;
+            {
+                if (vert != a && !meshData.checkedVertices.Contains(vert))
+                {
+                    if (IsOutlineEdge(a, vert))
+                        return vert;
+                }
+            }
         }
         return -1;
     }
@@ -321,16 +326,16 @@ public class Chunk : MonoBehaviour
     bool IsOutlineEdge(int a, int b)
     {
         List<Triangle> trianglesA = meshData.triangleMap[a];
-        int sharedTriangleCount = 0;
+        int count = 0;
         foreach (Triangle tri in trianglesA)
         {
             if (tri.a == b || tri.b == b || tri.c == b)
             {
-                sharedTriangleCount++;
-                if (sharedTriangleCount > 1)
-                    return false;
+                count++;
+                if (count > 1)
+                    break;
             }
         }
-        return true;
+        return count == 1;
     }
 }
