@@ -6,8 +6,8 @@ public class PlayerInput : MonoBehaviour
     public InputMap inputMap;
     public Vector2 playerMovement { get; private set; }
 
-    public System.Action whenPlayerPressedDig;
-    public System.Action whenPlayerPressedFill;
+    public System.Action whenPressedDig;
+    public System.Action whenPressedFill;
 
     void Awake()
     {
@@ -17,14 +17,14 @@ public class PlayerInput : MonoBehaviour
     void OnEnable()
     {
         inputMap.Enable();
-        inputMap.Player.Dig.started += OnPlayerPressedDig;
-        inputMap.Player.Fill.started += OnPlayerPressedFill;
+        inputMap.Player.Dig.started += OnPressedDig;
+        inputMap.Player.Fill.started += OnPressedFill;
     }
 
     void OnDisable()
     {
-        inputMap.Player.Dig.started -= OnPlayerPressedDig;
-        inputMap.Player.Fill.started -= OnPlayerPressedFill;
+        inputMap.Player.Dig.started -= OnPressedDig;
+        inputMap.Player.Fill.started -= OnPressedFill;
         inputMap.Disable();
     }
 
@@ -33,13 +33,13 @@ public class PlayerInput : MonoBehaviour
         playerMovement = inputMap.Player.Movement.ReadValue<Vector2>();
     }
 
-    void OnPlayerPressedDig(InputAction.CallbackContext context)
+    void OnPressedDig(InputAction.CallbackContext context)
     {
-        whenPlayerPressedDig?.Invoke();
+        whenPressedDig?.Invoke();
     }
 
-    void OnPlayerPressedFill(InputAction.CallbackContext context)
+    void OnPressedFill(InputAction.CallbackContext context)
     {
-        whenPlayerPressedFill?.Invoke();
+        whenPressedFill?.Invoke();
     }
 }

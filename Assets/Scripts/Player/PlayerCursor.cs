@@ -5,7 +5,7 @@ public class PlayerCursor : MonoBehaviour
     public Vector2 inputAxis { get; private set; }
     [field: SerializeField] public float radius { get; private set; } = 0.5f;
     Transform parentTransform;
-    Vector2 lastNonZeroInput = Vector2.up;
+    Vector2 lastNonZeroInput = Vector2.right;
 
     void Start()
     {

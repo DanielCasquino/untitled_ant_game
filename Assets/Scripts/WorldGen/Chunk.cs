@@ -119,6 +119,27 @@ public class Chunk : MonoBehaviour
         GenerateEdgeColliders();
     }
 
+    float NoiseProvider(float x, float y)
+    {
+        // Combine multiple octaves of Perlin noise and apply a threshold to create more "cave-like" patterns
+        float noise = 0f;
+        float amplitude = 1f;
+        float frequency = 1f;
+        float persistence = 0.5f;
+        int octaves = 4;
+
+        for (int i = 0; i < octaves; i++)
+        {
+            noise += Mathf.PerlinNoise(x * frequency, y * frequency) * amplitude;
+            amplitude *= persistence;
+            frequency *= 2f;
+        }
+
+        // Invert and sharpen the noise to create more solid cave walls
+        noise = 1f - Mathf.Abs(noise - 0.5f) * 2f;
+        return noise;
+    }
+
     public void GenerateDensity()
     {
         density = new bool[chunkResolution + 1, chunkResolution + 1];
@@ -128,7 +149,7 @@ public class Chunk : MonoBehaviour
             {
                 float x = transform.position.x + i * cellSize;
                 float y = transform.position.y + j * cellSize;
-                float noiseValue = Mathf.PerlinNoise((x + World.Instance.seed) * World.Instance.noiseScale, (y + World.Instance.seed) * World.Instance.noiseScale);
+                float noiseValue = NoiseProvider((x + World.Instance.seed) * World.Instance.noiseScale, (y + World.Instance.seed) * World.Instance.noiseScale);
                 density[i, j] = noiseValue <= World.Instance.noiseThreshold;
             }
         }
