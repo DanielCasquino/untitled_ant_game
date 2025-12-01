@@ -1,3 +1,7 @@
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -77,6 +81,7 @@ public class MeshData
         vertexMap.Clear();
         triangleMap.Clear();
         outlines.Clear();
+        checkedVertices.Clear();
     }
 }
 
@@ -86,8 +91,8 @@ public class Chunk : MonoBehaviour
     MeshData meshData;
     MeshFilter meshFilter;
     MeshRenderer meshRenderer;
-    float[,] density;
     int chunkId;
+    bool[,] density;
     float cellSize;
     int chunkResolution;
     [SerializeField] EdgeColliderPool edgeColliderPool;
@@ -104,6 +109,11 @@ public class Chunk : MonoBehaviour
         cellSize = World.Instance.cellSize;
         chunkResolution = World.Instance.chunkResolution;
         GenerateDensity();
+        GenerateTerrain();
+    }
+
+    void GenerateTerrain()
+    {
         GenerateMesh();
         GenerateOutlines();
         GenerateEdgeColliders();
@@ -111,7 +121,7 @@ public class Chunk : MonoBehaviour
 
     public void GenerateDensity()
     {
-        density = new float[chunkResolution + 1, chunkResolution + 1];
+        density = new bool[chunkResolution + 1, chunkResolution + 1];
         for (int j = 0; j <= chunkResolution; ++j)
         {
             for (int i = 0; i <= chunkResolution; ++i)
@@ -119,7 +129,7 @@ public class Chunk : MonoBehaviour
                 float x = transform.position.x + i * cellSize;
                 float y = transform.position.y + j * cellSize;
                 float noiseValue = Mathf.PerlinNoise((x + World.Instance.seed) * World.Instance.noiseScale, (y + World.Instance.seed) * World.Instance.noiseScale);
-                density[i, j] = noiseValue;
+                density[i, j] = noiseValue <= World.Instance.noiseThreshold;
             }
         }
     }
@@ -135,10 +145,10 @@ public class Chunk : MonoBehaviour
         {
             for (int i = 0; i < chunkResolution; ++i)
             {
-                bool a = density[j, i] <= World.Instance.noiseThreshold;
-                bool b = density[j + 1, i] <= World.Instance.noiseThreshold;
-                bool c = density[j + 1, i + 1] <= World.Instance.noiseThreshold;
-                bool d = density[j, i + 1] <= World.Instance.noiseThreshold;
+                bool a = density[j, i];
+                bool b = density[j + 1, i];
+                bool c = density[j + 1, i + 1];
+                bool d = density[j, i + 1];
                 //d--c
                 //|  |
                 //a--b
@@ -245,19 +255,18 @@ public class Chunk : MonoBehaviour
                         meshData.AddTriangle(bottomRight, topRight, topLeft);
                         break;
                 }
-
-                meshData.mesh.vertices = meshData.vertices.ToArray();
-                meshData.mesh.triangles = meshData.triangles.ToArray();
-                meshData.mesh.RecalculateBounds();
-                meshData.mesh.RecalculateNormals();
-                meshFilter.mesh = meshData.mesh;
             }
         }
+        meshData.mesh.vertices = meshData.vertices.ToArray();
+        meshData.mesh.triangles = meshData.triangles.ToArray();
+        meshData.mesh.RecalculateBounds();
+        meshData.mesh.RecalculateNormals();
+        meshFilter.mesh = meshData.mesh;
     }
 
     public void GenerateEdgeColliders()
     {
-        edgeColliderPool.DisableAllColliders();
+        edgeColliderPool.Reset();
         foreach (List<int> outline in meshData.outlines)
         {
             EdgeCollider2D edgeCollider = edgeColliderPool.GetNextCollider();
@@ -273,35 +282,34 @@ public class Chunk : MonoBehaviour
             edgeCollider.points = edgePoints;
             edgeCollider.enabled = true;
         }
-
     }
 
     public void GenerateOutlines()
     {
+        // i guess this could be faster if the first vertex is always the top left vertex of the chunk
         for (int i = 0; i < meshData.vertices.Count; i++)
         {
             if (meshData.checkedVertices.Contains(i))
                 continue;
 
             int connectedVertex = GetConnectedOutlineVertex(i);
-            if (connectedVertex != -1)
+            if (connectedVertex == -1)
+                continue;
+
+            List<int> newOutline = new List<int>() { i };
+            meshData.checkedVertices.Add(i);
+
+            int currentVertex = connectedVertex;
+            while (currentVertex != -1)
             {
-                List<int> newOutline = new List<int>();
-                newOutline.Add(i);
-                meshData.checkedVertices.Add(i);
-
-                int currentVertex = connectedVertex;
-                while (currentVertex != -1)
-                {
-                    newOutline.Add(currentVertex);
-                    meshData.checkedVertices.Add(currentVertex);
-                    currentVertex = GetConnectedOutlineVertex(currentVertex);
-                    if (currentVertex == i)
-                        break;
-                }
-
-                meshData.outlines.Add(newOutline);
+                newOutline.Add(currentVertex);
+                meshData.checkedVertices.Add(currentVertex);
+                currentVertex = GetConnectedOutlineVertex(currentVertex);
+                if (currentVertex == i)
+                    break;
             }
+
+            meshData.outlines.Add(newOutline);
         }
     }
 
@@ -313,11 +321,11 @@ public class Chunk : MonoBehaviour
             int[] verts = new int[] { triangle.a, triangle.b, triangle.c };
             foreach (int vert in verts)
             {
-                if (vert != a && !meshData.checkedVertices.Contains(vert))
-                {
-                    if (IsOutlineEdge(a, vert))
-                        return vert;
-                }
+                if (vert == a || meshData.checkedVertices.Contains(vert))
+                    continue;
+                if (!IsOutlineEdge(a, vert))
+                    continue;
+                return vert;
             }
         }
         return -1;
@@ -338,4 +346,97 @@ public class Chunk : MonoBehaviour
         }
         return count == 1;
     }
+
+    public void SetDensity(int i, int j, bool value)
+    {
+        density[i, j] = value;
+        GenerateTerrain();
+    }
+
+    public void ModifyNode(int i, int j, bool value)
+    {
+        if (i < 0 || i > chunkResolution || j < 0 || j > chunkResolution)
+            return;
+        if (density[i, j] == value)
+            return;
+
+        bool updateLeft = i == 0;
+        bool updateRight = i == chunkResolution;
+        bool updateBottom = j == 0;
+        bool updateTop = j == chunkResolution;
+
+        Chunk left, right, top, bottom;
+        World.Instance.GetNeighbour(chunkId, out left, out right, out top, out bottom);
+
+        SetDensity(i, j, value);
+
+        if (updateLeft && left != null)
+            left.SetDensity(chunkResolution, j, value);
+        if (updateRight && right != null)
+            right.SetDensity(0, j, value);
+        if (updateBottom && bottom != null)
+            bottom.SetDensity(i, chunkResolution, value);
+        if (updateTop && top != null)
+            top.SetDensity(i, 0, value);
+
+        // Corners
+        if (updateLeft && updateBottom && left != null && bottom != null)
+        {
+            Chunk bottomLeft;
+            World.Instance.GetNeighbour(left.chunkId, out _, out _, out _, out bottomLeft);
+            if (bottomLeft != null)
+                bottomLeft.SetDensity(chunkResolution, chunkResolution, value);
+        }
+        if (updateRight && updateBottom && right != null && bottom != null)
+        {
+            Chunk bottomRight;
+            World.Instance.GetNeighbour(right.chunkId, out _, out _, out _, out bottomRight);
+            if (bottomRight != null)
+                bottomRight.SetDensity(0, chunkResolution, value);
+        }
+        if (updateLeft && updateTop && left != null && top != null)
+        {
+            Chunk topLeft;
+            World.Instance.GetNeighbour(left.chunkId, out _, out _, out topLeft, out _);
+            if (topLeft != null)
+                topLeft.SetDensity(chunkResolution, 0, value);
+        }
+        if (updateRight && updateTop && right != null && top != null)
+        {
+            Chunk topRight;
+            World.Instance.GetNeighbour(right.chunkId, out _, out _, out topRight, out _);
+            if (topRight != null)
+                topRight.SetDensity(0, 0, value);
+        }
+        // this is awful
+    }
+
+#if UNITY_EDITOR
+    void OnDrawGizmosSelected()
+    {
+        if (density == null)
+            return;
+
+        float radius = cellSize * 0.15f;
+        for (int i = 0; i <= chunkResolution; ++i)
+        {
+            for (int j = 0; j <= chunkResolution; ++j)
+            {
+                float x = transform.position.x + i * cellSize;
+                float y = transform.position.y + j * cellSize;
+                Vector3 pos = new Vector3(x, y, 0);
+
+                if (density[i, j])
+                    Gizmos.color = Color.red;
+                else
+                    Gizmos.color = Color.green;
+
+#if UNITY_EDITOR
+                Handles.color = Gizmos.color;
+                Handles.DrawSolidDisc(pos, Vector3.forward, radius);
+#endif
+            }
+        }
+    }
+#endif
 }

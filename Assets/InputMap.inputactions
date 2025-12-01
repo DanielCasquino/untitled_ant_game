@@ -3,7 +3,7 @@
     "name": "InputMap",
     "maps": [
         {
-            "name": "PlayerMovement",
+            "name": "Player",
             "id": "169310d4-4b2b-4d28-923d-e99e8171812e",
             "actions": [
                 {
@@ -14,6 +14,24 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "Dig",
+                    "type": "Button",
+                    "id": "5ed0028b-5ce5-4252-bbdd-696f0fe75deb",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Fill",
+                    "type": "Button",
+                    "id": "49d5021d-3ea5-458b-b7af-eb68247f869f",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -31,7 +49,7 @@
                 {
                     "name": "up",
                     "id": "8b67428a-d9e2-4df4-8b2a-3e39c9cf4b7d",
-                    "path": "<Keyboard>/w",
+                    "path": "<Keyboard>/upArrow",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -42,7 +60,7 @@
                 {
                     "name": "down",
                     "id": "5ac1199e-ffdf-4247-980f-cf6f1886896e",
-                    "path": "<Keyboard>/s",
+                    "path": "<Keyboard>/downArrow",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -53,7 +71,7 @@
                 {
                     "name": "left",
                     "id": "ddc5a7fc-febb-4885-8ade-74358ad72a75",
-                    "path": "<Keyboard>/a",
+                    "path": "<Keyboard>/leftArrow",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -64,13 +82,35 @@
                 {
                     "name": "right",
                     "id": "6a1bf885-0333-4a64-a011-b1e5be2c3a8f",
-                    "path": "<Keyboard>/d",
+                    "path": "<Keyboard>/rightArrow",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
                     "action": "Movement",
                     "isComposite": false,
                     "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "a984c6f4-9195-45a8-b275-e777bb0392d2",
+                    "path": "<Keyboard>/x",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Dig",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "6fd343e6-6aa7-46ef-aac7-dcf3e244cfae",
+                    "path": "<Keyboard>/z",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Fill",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         },

@@ -53,4 +53,47 @@ public class World : MonoBehaviour
         top = (y < worldResolution - 1) ? chunks[x, y + 1] : null;
         bottom = (y > 0) ? chunks[x, y - 1] : null;
     }
+
+    int PositionToChunkId(Vector2 position)
+    {
+        int x = Mathf.FloorToInt(position.x / (chunkResolution * cellSize));
+        int y = Mathf.FloorToInt(position.y / (chunkResolution * cellSize));
+
+        if (x < 0 || x >= worldResolution || y < 0 || y >= worldResolution)
+            return -1;
+
+        return y * worldResolution + x;
+    }
+
+    Vector2Int PositionToChunkSpace(Vector2 position, int chunkId)
+    {
+        // todo: get closest node
+        int chunkX = chunkId % worldResolution;
+        int chunkY = chunkId / worldResolution;
+
+        float chunkOriginX = chunkX * chunkResolution * cellSize;
+        float chunkOriginY = chunkY * chunkResolution * cellSize;
+
+        int i = Mathf.RoundToInt((position.x - chunkOriginX) / cellSize);
+        int j = Mathf.RoundToInt((position.y - chunkOriginY) / cellSize);
+
+        i = Mathf.Clamp(i, 0, chunkResolution);
+        j = Mathf.Clamp(j, 0, chunkResolution);
+
+        return new Vector2Int(i, j);
+    }
+
+    public void ModifyTerrain(Vector2 position, bool value)
+    {
+        int chunkId = PositionToChunkId(position);
+        Debug.Log(chunkId);
+        if (chunkId == -1)
+            return;
+        Vector2Int chunkCoords = PositionToChunkSpace(position, chunkId);
+        Debug.Log($"{chunkId}, {chunkCoords}");
+
+        int x = chunkId % worldResolution;
+        int y = chunkId / worldResolution;
+        chunks[x, y].ModifyNode(chunkCoords.x, chunkCoords.y, value);
+    }
 }

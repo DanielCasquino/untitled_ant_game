@@ -5,10 +5,9 @@ public class PlayerInput : MonoBehaviour
 {
     public InputMap inputMap;
     public Vector2 playerMovement { get; private set; }
-    public Vector2 mousePosition { get; private set; }
 
-    public System.Action whenPlayerLeftClicked;
-    public System.Action whenPlayerRightClicked;
+    public System.Action whenPlayerPressedDig;
+    public System.Action whenPlayerPressedFill;
 
     void Awake()
     {
@@ -18,30 +17,29 @@ public class PlayerInput : MonoBehaviour
     void OnEnable()
     {
         inputMap.Enable();
-        inputMap.PlayerMouse.LeftClick.started += OnPlayerLeftClicked;
-        inputMap.PlayerMouse.RightClick.started += OnPlayerRightClicked;
+        inputMap.Player.Dig.started += OnPlayerPressedDig;
+        inputMap.Player.Fill.started += OnPlayerPressedFill;
     }
 
     void OnDisable()
     {
-        inputMap.PlayerMouse.LeftClick.started -= OnPlayerLeftClicked;
-        inputMap.PlayerMouse.RightClick.started -= OnPlayerRightClicked;
+        inputMap.Player.Dig.started -= OnPlayerPressedDig;
+        inputMap.Player.Fill.started -= OnPlayerPressedFill;
         inputMap.Disable();
     }
 
     void Update()
     {
-        mousePosition = inputMap.PlayerMouse.Position.ReadValue<Vector2>();
-        playerMovement = inputMap.PlayerMovement.Movement.ReadValue<Vector2>();
+        playerMovement = inputMap.Player.Movement.ReadValue<Vector2>();
     }
 
-    void OnPlayerLeftClicked(InputAction.CallbackContext context)
+    void OnPlayerPressedDig(InputAction.CallbackContext context)
     {
-        whenPlayerLeftClicked?.Invoke();
+        whenPlayerPressedDig?.Invoke();
     }
 
-    void OnPlayerRightClicked(InputAction.CallbackContext context)
+    void OnPlayerPressedFill(InputAction.CallbackContext context)
     {
-        whenPlayerRightClicked?.Invoke();
+        whenPlayerPressedFill?.Invoke();
     }
 }

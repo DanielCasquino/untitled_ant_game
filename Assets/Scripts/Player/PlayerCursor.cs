@@ -2,24 +2,32 @@ using UnityEngine;
 
 public class PlayerCursor : MonoBehaviour
 {
-    float cursorWidthScreenProportion = 0.5f; // cursor circle diameter is screen width (radius is 50%)
-    public Vector2 mousePosition { get; private set; }
+    public Vector2 inputAxis { get; private set; }
+    [field: SerializeField] public float radius { get; private set; } = 0.5f;
+    Transform parentTransform;
+    Vector2 lastNonZeroInput = Vector2.up;
 
-    public void SetMousePosition(Vector2 value)
+    void Start()
     {
-        mousePosition = value;
+        parentTransform = gameObject.GetComponentInParent<Transform>();
+        transform.position = parentTransform.position + new Vector3(0, radius, 0);
     }
+
 
     void Update()
     {
-        Vector2 mousePos = mousePosition;
-        Vector2 halfScreen = new Vector2(Screen.width / 2f, Screen.height / 2f);
+        if (inputAxis != Vector2.zero)
+        {
+            lastNonZeroInput = inputAxis.normalized;
+        }
 
-        float relativeRadius = Screen.width * cursorWidthScreenProportion;
-        Vector2 screenSpaceCursor = (mousePos - halfScreen).normalized * relativeRadius + halfScreen;
+        Vector3 targetOffset = new Vector3(lastNonZeroInput.x, lastNonZeroInput.y, 0) * radius;
+        transform.localPosition = Vector3.Lerp(transform.localPosition, targetOffset, Time.deltaTime * 10f);
+    }
 
-        Vector3 worldPos = Camera.main.ScreenToWorldPoint(new Vector3(screenSpaceCursor.x, screenSpaceCursor.y, Camera.main.nearClipPlane));
-        transform.position = new Vector3(worldPos.x, worldPos.y, 0f);
+    public void SetInputAxis(Vector2 v)
+    {
+        inputAxis = v;
     }
 
     void OnDrawGizmos()

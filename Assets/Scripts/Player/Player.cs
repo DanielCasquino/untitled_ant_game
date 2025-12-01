@@ -18,32 +18,32 @@ public class Player : MonoBehaviour
 
     void OnEnable()
     {
-        playerInput.whenPlayerLeftClicked += OnPlayerLeftClicked;
-        playerInput.whenPlayerRightClicked += OnPlayerRightClicked;
+        playerInput.whenPlayerPressedDig += OnPlayerDigged;
+        playerInput.whenPlayerPressedFill += OnPlayerFilled;
     }
 
     void OnDisable()
     {
-        playerInput.whenPlayerLeftClicked -= OnPlayerLeftClicked;
-        playerInput.whenPlayerRightClicked -= OnPlayerRightClicked;
+        playerInput.whenPlayerPressedDig -= OnPlayerDigged;
+        playerInput.whenPlayerPressedFill -= OnPlayerFilled;
     }
 
     void FixedUpdate()
     {
-        playerCursor.SetMousePosition(playerInput.mousePosition);
-
         Vector2 m = playerInput.playerMovement;
+        playerCursor.SetInputAxis(m);
         rb.MovePosition(rb.position + new Vector2(m.x, m.y) * Time.fixedDeltaTime * speed);
     }
 
-    public void OnPlayerLeftClicked()
+    public void OnPlayerDigged()
     {
         whenPlayerDigged?.Invoke(playerCursor.transform.position);
+        World.Instance.ModifyTerrain(playerCursor.transform.position, false);
     }
 
-    public void OnPlayerRightClicked()
+    public void OnPlayerFilled()
     {
         whenPlayerFilled?.Invoke(playerCursor.transform.position);
+        World.Instance.ModifyTerrain(playerCursor.transform.position, true);
     }
-
 }
