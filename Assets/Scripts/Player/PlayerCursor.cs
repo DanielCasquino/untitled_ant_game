@@ -22,7 +22,7 @@ public class PlayerCursor : MonoBehaviour
         }
 
         Vector3 targetOffset = new Vector3(lastNonZeroInput.x, lastNonZeroInput.y, 0) * radius;
-        transform.localPosition = Vector3.Lerp(transform.localPosition, targetOffset, Time.deltaTime * 10f);
+        transform.localPosition = targetOffset;
     }
 
     public void SetInputAxis(Vector2 v)

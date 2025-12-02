@@ -106,14 +106,15 @@ public class Chunk : MonoBehaviour
     public void Initialize(int _chunkId)
     {
         chunkId = _chunkId;
-        cellSize = World.Instance.cellSize;
-        chunkResolution = World.Instance.chunkResolution;
+        cellSize = World.instance.cellSize;
+        chunkResolution = World.instance.chunkResolution;
         GenerateDensity();
         GenerateTerrain();
     }
 
     void GenerateTerrain()
     {
+        // ty pmarini && lague
         GenerateMesh();
         GenerateOutlines();
         GenerateEdgeColliders();
@@ -121,7 +122,7 @@ public class Chunk : MonoBehaviour
 
     float NoiseProvider(float x, float y)
     {
-        // Combine multiple octaves of Perlin noise and apply a threshold to create more "cave-like" patterns
+        // perlin octaves + thresh
         float noise = 0f;
         float amplitude = 1f;
         float frequency = 1f;
@@ -135,9 +136,11 @@ public class Chunk : MonoBehaviour
             frequency *= 2f;
         }
 
-        // Invert and sharpen the noise to create more solid cave walls
+        // invert and sharpen noise
         noise = 1f - Mathf.Abs(noise - 0.5f) * 2f;
         return noise;
+
+        // ty gpt
     }
 
     public void GenerateDensity()
@@ -149,8 +152,8 @@ public class Chunk : MonoBehaviour
             {
                 float x = transform.position.x + i * cellSize;
                 float y = transform.position.y + j * cellSize;
-                float noiseValue = NoiseProvider((x + World.Instance.seed) * World.Instance.noiseScale, (y + World.Instance.seed) * World.Instance.noiseScale);
-                density[i, j] = noiseValue <= World.Instance.noiseThreshold;
+                float noiseValue = NoiseProvider((x + World.instance.seed) * World.instance.noiseScale, (y + World.instance.seed) * World.instance.noiseScale);
+                density[i, j] = noiseValue <= World.instance.noiseThreshold;
             }
         }
     }
@@ -292,7 +295,7 @@ public class Chunk : MonoBehaviour
         {
             EdgeCollider2D edgeCollider = edgeColliderPool.GetNextCollider();
             if (edgeCollider == null)
-                continue; // 10 for now
+                continue; // shouldnt happen, hardcoded upper bound
             Vector2[] edgePoints = new Vector2[outline.Count + 1];
             for (int i = 0; i < outline.Count; i++)
             {
@@ -387,7 +390,7 @@ public class Chunk : MonoBehaviour
         bool updateTop = j == chunkResolution;
 
         Chunk left, right, top, bottom;
-        World.Instance.GetNeighbour(chunkId, out left, out right, out top, out bottom);
+        World.instance.GetNeighbour(chunkId, out left, out right, out top, out bottom);
 
         SetDensity(i, j, value);
 
@@ -404,28 +407,28 @@ public class Chunk : MonoBehaviour
         if (updateLeft && updateBottom && left != null && bottom != null)
         {
             Chunk bottomLeft;
-            World.Instance.GetNeighbour(left.chunkId, out _, out _, out _, out bottomLeft);
+            World.instance.GetNeighbour(left.chunkId, out _, out _, out _, out bottomLeft);
             if (bottomLeft != null)
                 bottomLeft.SetDensity(chunkResolution, chunkResolution, value);
         }
         if (updateRight && updateBottom && right != null && bottom != null)
         {
             Chunk bottomRight;
-            World.Instance.GetNeighbour(right.chunkId, out _, out _, out _, out bottomRight);
+            World.instance.GetNeighbour(right.chunkId, out _, out _, out _, out bottomRight);
             if (bottomRight != null)
                 bottomRight.SetDensity(0, chunkResolution, value);
         }
         if (updateLeft && updateTop && left != null && top != null)
         {
             Chunk topLeft;
-            World.Instance.GetNeighbour(left.chunkId, out _, out _, out topLeft, out _);
+            World.instance.GetNeighbour(left.chunkId, out _, out _, out topLeft, out _);
             if (topLeft != null)
                 topLeft.SetDensity(chunkResolution, 0, value);
         }
         if (updateRight && updateTop && right != null && top != null)
         {
             Chunk topRight;
-            World.Instance.GetNeighbour(right.chunkId, out _, out _, out topRight, out _);
+            World.instance.GetNeighbour(right.chunkId, out _, out _, out topRight, out _);
             if (topRight != null)
                 topRight.SetDensity(0, 0, value);
         }
@@ -452,10 +455,8 @@ public class Chunk : MonoBehaviour
                 else
                     Gizmos.color = Color.green;
 
-#if UNITY_EDITOR
                 Handles.color = Gizmos.color;
                 Handles.DrawSolidDisc(pos, Vector3.forward, radius);
-#endif
             }
         }
     }

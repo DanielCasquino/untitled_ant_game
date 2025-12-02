@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class World : MonoBehaviour
 {
-    public static World Instance { get; private set; }
+    public static World instance { get; private set; }
     [field: SerializeField] public int seed { get; private set; } = 888;
     [SerializeField] GameObject chunkPrefab;
     [SerializeField] int worldResolution = 4; // a grid of 4 by 4 chunks
@@ -14,8 +14,8 @@ public class World : MonoBehaviour
 
     void Awake()
     {
-        if (Instance == null)
-            Instance = this;
+        if (instance == null)
+            instance = this;
         else
             Destroy(gameObject);
     }

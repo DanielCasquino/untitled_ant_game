@@ -4,15 +4,16 @@ public class PlayerAnimator : MonoBehaviour
 {
     [SerializeField] PlayerCursor cursor;
     Animator animator;
+    [SerializeField] float rotationSpeed = 10f;
 
     void Awake()
     {
         animator = GetComponent<Animator>();
     }
 
-    public void FixedUpdate()
+    void Update()
     {
-        transform.rotation = Quaternion.LookRotation(Vector3.forward, cursor.transform.localPosition.normalized);
+        transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(Vector3.forward, cursor.transform.localPosition.normalized), rotationSpeed * Time.deltaTime);
     }
 
     public void OnStateChanged(PlayerState state)

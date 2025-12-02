@@ -6,8 +6,10 @@ public enum PlayerState
     IDLE = 0, MOVING
 }
 
+[RequireComponent(typeof(Rigidbody2D))]
 public class Player : MonoBehaviour
 {
+    public static Player instance { get; private set; }
     [SerializeField] PlayerCursor cursor;
     [SerializeField] PlayerInput input;
     Rigidbody2D rb;
@@ -16,10 +18,16 @@ public class Player : MonoBehaviour
     public UnityEvent<PlayerState> whenStateChanged;
     [SerializeField] float speed = 4f;
     PlayerState state = PlayerState.IDLE;
+    [SerializeField] float accel = 20f;
+    [SerializeField] float deccel = 30f;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        if (instance == null)
+            instance = this;
+        else
+            Destroy(gameObject);
     }
 
     void OnEnable()
@@ -34,43 +42,41 @@ public class Player : MonoBehaviour
         input.whenPressedFill -= OnFill;
     }
 
-    void FixedUpdate()
+    void Update()
     {
         Vector2 m = input.playerMovement;
         cursor.SetInputAxis(m);
-        // rb.MovePosition(rb.position + new Vector2(m.x, m.y) * Time.fixedDeltaTime * speed);
+    }
 
-        float acceleration = 20f;
-        float deceleration = 30f;
-
-        Vector2 desiredVelocity = m.normalized * speed;
-        Vector2 velocityChange = desiredVelocity - rb.linearVelocity;
-
-        float factor = (m.magnitude > 0.01f) ? acceleration : deceleration;
-        Vector2 force = Vector2.ClampMagnitude(velocityChange * rb.mass / Time.fixedDeltaTime, factor * rb.mass);
-
+    void FixedUpdate()
+    {
+        Vector2 m = input.playerMovement;
+        Vector2 targetVelocity = m.normalized * speed;
+        Vector2 velocityDelta = targetVelocity - rb.linearVelocity;
+        float fac = (m.magnitude > 0.01f) ? accel : deccel;
+        Vector2 force = Vector2.ClampMagnitude(velocityDelta * rb.mass / Time.fixedDeltaTime, fac * rb.mass);
         rb.AddForce(force);
 
         PlayerState newState = GetState();
 
-        if (state != newState)
-        {
-            Debug.Log("Player state changed to: " + newState);
-            whenStateChanged?.Invoke(newState);
-            state = newState;
-        }
+        if (state == newState)
+            return;
+
+        Debug.Log("Player state changed to: " + newState);
+        whenStateChanged?.Invoke(newState);
+        state = newState;
     }
 
     public void OnDig()
     {
         whenDigged?.Invoke(cursor.transform.position);
-        World.Instance.ModifyTerrain(cursor.transform.position, false);
+        World.instance.ModifyTerrain(cursor.transform.position, false);
     }
 
     public void OnFill()
     {
         whenFilled?.Invoke(cursor.transform.position);
-        World.Instance.ModifyTerrain(cursor.transform.position, true);
+        World.instance.ModifyTerrain(cursor.transform.position, true);
     }
 
     PlayerState GetState()
