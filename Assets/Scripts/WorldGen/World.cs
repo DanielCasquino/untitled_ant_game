@@ -11,6 +11,8 @@ public class World : MonoBehaviour
     Chunk[,] chunks;
     [field: SerializeField] public float noiseScale { get; private set; } = 0.07f;
     [field: SerializeField] public float noiseThreshold { get; private set; } = 0.5f;
+    [SerializeField] Transform floor;
+    EdgeCollider2D boundsCollider;
 
     void Awake()
     {
@@ -18,11 +20,16 @@ public class World : MonoBehaviour
             instance = this;
         else
             Destroy(gameObject);
+
+        boundsCollider = GetComponent<EdgeCollider2D>();
     }
 
     void Start()
     {
         CreateChunks();
+        CreateBounds();
+        // aca poner generateStructures()
+        GenerateChunks();
     }
 
     void CreateChunks()
@@ -40,6 +47,14 @@ public class World : MonoBehaviour
                 chunkComponent.Initialize(chunkId);
                 chunks[i, j] = chunkComponent;
             }
+        }
+    }
+
+    public void GenerateChunks()
+    {
+        foreach (Chunk chunk in chunks)
+        {
+            chunk.GenerateTerrain();
         }
     }
 
@@ -95,5 +110,21 @@ public class World : MonoBehaviour
         int x = chunkId % worldResolution;
         int y = chunkId / worldResolution;
         chunks[x, y].ModifyNode(chunkCoords.x, chunkCoords.y, value);
+    }
+
+    void CreateBounds()
+    {
+        float worldDimensions = worldResolution * chunkResolution * cellSize;
+        floor.localScale = Vector3.one * worldDimensions;
+        floor.position = Vector3.one * floor.localScale.x / 2;
+
+        Vector2[] points = new Vector2[5];
+        points[0] = Vector2.zero;
+        points[1] = Vector2.up * worldDimensions;
+        points[2] = Vector2.one * worldDimensions;
+        points[3] = Vector2.right * worldDimensions;
+        points[4] = Vector2.zero;
+
+        boundsCollider.points = points;
     }
 }

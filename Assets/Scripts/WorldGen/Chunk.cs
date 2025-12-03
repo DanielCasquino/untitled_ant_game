@@ -109,10 +109,9 @@ public class Chunk : MonoBehaviour
         cellSize = World.instance.cellSize;
         chunkResolution = World.instance.chunkResolution;
         GenerateDensity();
-        GenerateTerrain();
     }
 
-    void GenerateTerrain()
+    public void GenerateTerrain()
     {
         // ty pmarini && lague
         GenerateMesh();
@@ -376,6 +375,12 @@ public class Chunk : MonoBehaviour
         density[i, j] = value;
         GenerateTerrain();
     }
+
+    public void OverrideDensity(int i, int j, bool value)
+    {
+        density[i, j] = value;
+    }
+
 
     public void ModifyNode(int i, int j, bool value)
     {
