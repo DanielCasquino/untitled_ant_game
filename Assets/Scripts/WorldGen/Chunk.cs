@@ -114,6 +114,8 @@ public class Chunk : MonoBehaviour
     public void GenerateTerrain()
     {
         // ty pmarini && lague
+        if (chunkId == 0)
+            return;
         GenerateMesh();
         GenerateOutlines();
         GenerateEdgeColliders();
@@ -149,6 +151,11 @@ public class Chunk : MonoBehaviour
         {
             for (int i = 0; i <= chunkResolution; ++i)
             {
+                if (chunkId == 0)
+                {
+                    density[i, j] = false;
+                    continue;
+                }
                 float x = transform.position.x + i * cellSize;
                 float y = transform.position.y + j * cellSize;
                 float noiseValue = NoiseProvider((x + World.instance.seed) * World.instance.noiseScale, (y + World.instance.seed) * World.instance.noiseScale);

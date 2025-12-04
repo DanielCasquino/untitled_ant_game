@@ -32,7 +32,7 @@ Material:
     - _BlurFalloff: 1
     - _BlurRadius: 0
     - _BlurSize: 5
-    - _VignetteStrength: 0
+    - _VignetteStrength: 1
     m_Colors:
     - _BlurCenter: {r: 0.5, g: 0.5, b: 0, a: 0}
   m_BuildTextureStacks: []

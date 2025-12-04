@@ -3,12 +3,20 @@ using UnityEngine.Events;
 
 public class Timer : MonoBehaviour
 {
-    [SerializeField] bool autoStart = true;
-    [SerializeField] bool oneShot = true;
-    public bool paused { get; private set; }
-    public float timeLeft { get; private set; }
-    public float waitTime { get; private set; }
+    public bool autoStart = false;
+    public bool oneShot = true;
+    public bool paused = true;
+    public float timeLeft;
+    public float waitTime;
     public UnityEvent whenTimeout;
+
+    public void Initialize(bool autoStart = false, float waitTime = 1f)
+    {
+        paused = true;
+        this.autoStart = autoStart;
+        this.waitTime = waitTime;
+        timeLeft = waitTime;
+    }
 
     void Start()
     {
@@ -23,8 +31,12 @@ public class Timer : MonoBehaviour
         timeLeft -= Time.deltaTime;
         if (timeLeft <= 0)
         {
-            Stop();
+            timeLeft = 0;
             whenTimeout?.Invoke();
+            if (oneShot)
+                Stop();
+            else
+                Play();
         }
     }
 
@@ -43,12 +55,5 @@ public class Timer : MonoBehaviour
     {
         timeLeft = 0;
         paused = true;
-    }
-
-    public void SetWaitTime(float v)
-    {
-        if (v < 0)
-            return;
-        waitTime = v;
     }
 }

@@ -20,6 +20,36 @@ public class Player : MonoBehaviour
     PlayerState state = PlayerState.IDLE;
     [SerializeField] float accel = 20f;
     [SerializeField] float deccel = 30f;
+    public int health;
+    public UnityEvent playerDamaged;
+    public UnityEvent playerDied;
+
+    public bool isInvis = false;
+    float invisTime = 3f;
+
+    [SerializeField] Timer invisTimer;
+
+
+    public void Damage()
+    {
+        if (isInvis)
+            return;
+
+        health--;
+        if (health > 0)
+        {
+            playerDamaged?.Invoke();
+            isInvis = true;
+            invisTimer.Play();
+        }
+        else
+            playerDied?.Invoke();
+    }
+
+    void OnInvisTimerTimeout()
+    {
+        isInvis = false;
+    }
 
     void Awake()
     {
@@ -28,16 +58,20 @@ public class Player : MonoBehaviour
             instance = this;
         else
             Destroy(gameObject);
+
+        invisTimer.Initialize(false, invisTime);
     }
 
     void OnEnable()
     {
+        invisTimer.whenTimeout.AddListener(OnInvisTimerTimeout);
         input.whenPressedDig += OnDig;
         input.whenPressedFill += OnFill;
     }
 
     void OnDisable()
     {
+        invisTimer.whenTimeout.RemoveListener(OnInvisTimerTimeout);
         input.whenPressedDig -= OnDig;
         input.whenPressedFill -= OnFill;
     }

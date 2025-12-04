@@ -92,6 +92,7 @@ public class World : MonoBehaviour
 
     void Start()
     {
+        seed = Random.Range(-256, 256);
         CreateChunks();
         CreateBounds();
         SpawnStructures();
@@ -118,9 +119,15 @@ public class World : MonoBehaviour
 
     public void GenerateChunks()
     {
-        foreach (Chunk chunk in chunks)
+        for (int i = 0; i < worldResolution; ++i)
         {
-            chunk.GenerateTerrain();
+            for (int j = 0; j < worldResolution; ++j)
+            {
+                int chunkId = j * worldResolution + i;
+                if (chunkId == 0)
+                    continue;
+                chunks[i, j].GenerateTerrain();
+            }
         }
     }
 
@@ -220,14 +227,14 @@ public class World : MonoBehaviour
 
                 es_valido = true;
 
-                // Límite del mundo
+                // Lï¿½mite del mundo
                 if (bb.min.x < 0 || bb.max.x > worldSize) es_valido = false;
                 else if (bb.min.y < 0 || bb.max.y > worldSize) es_valido = false;
 
-                // Superposición con otras estructuras
+                // Superposiciï¿½n con otras estructuras
                 else if (IsOverlapping(bb)) es_valido = false;
 
-                // Distancia mínima
+                // Distancia mï¿½nima
                 else if (!HasMinBoxDistance(bb, info.boundingBox, minDistance)) es_valido = false;
 
             }
