@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Custom_SpriteMasked
-  m_Shader: {fileID: 4800000, guid: caea6d4fac57b1b4ea8ca84958a4d007, type: 3}
+  m_Name: Fog
+  m_Shader: {fileID: 4800000, guid: 6b6c4f6f83c9b5645bee32bdef5bf118, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -22,14 +22,14 @@ Material:
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
-    m_TexEnvs:
-    - _MainTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
+    m_TexEnvs: []
     m_Ints: []
-    m_Floats: []
+    m_Floats:
+    - _Falloff: 5
+    - _InnerFalloff: 0
+    - _InnerRadius: 0
+    - _Radius: 6
     m_Colors:
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 1, g: 0.9764706, b: 0.76862746, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

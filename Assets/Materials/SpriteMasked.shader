@@ -1,4 +1,4 @@
-﻿Shader "Custom/SpriteMasked"
+﻿﻿Shader "Custom/SpriteMasked"
 {
     Properties
     {
@@ -20,7 +20,6 @@
         ZWrite Off
         Blend One OneMinusSrcAlpha
 
-        // 🟢 Solo dibujamos donde el FogMask escribió Ref 1
         Stencil
         {
             Ref 1
@@ -67,4 +66,3 @@
         }
     }
 }
-
