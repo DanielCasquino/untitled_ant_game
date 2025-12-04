@@ -26,9 +26,7 @@ public class Player : MonoBehaviour
 
     public bool isInvis = false;
     float invisTime = 3f;
-
     [SerializeField] Timer invisTimer;
-
 
     public void Damage()
     {
@@ -41,9 +39,13 @@ public class Player : MonoBehaviour
             playerDamaged?.Invoke();
             isInvis = true;
             invisTimer.Play();
+            Debug.Log("Player damaged");
         }
         else
+        {
             playerDied?.Invoke();
+            Debug.Log("Player died");
+        }
     }
 
     void OnInvisTimerTimeout()
@@ -96,7 +98,6 @@ public class Player : MonoBehaviour
         if (state == newState)
             return;
 
-        Debug.Log("Player state changed to: " + newState);
         whenStateChanged?.Invoke(newState);
         state = newState;
     }

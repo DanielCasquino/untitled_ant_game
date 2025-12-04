@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 [ExecuteInEditMode]
@@ -25,5 +26,27 @@ public class CameraBlur : MonoBehaviour
         {
             Graphics.Blit(src, dest);
         }
+    }
+
+    public void OnDamage()
+    {
+        StopAllCoroutines();
+        StartCoroutine(MakeVignetteRed());
+    }
+
+    public IEnumerator MakeVignetteRed()
+    {
+        float duration = 0.5f;
+        float elapsed = 0f;
+
+        blurMaterial.SetColor("_VignetteColor", Color.red);
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+            blurMaterial.SetColor("_VignetteColor", Color.Lerp(Color.red, Color.black, t));
+            yield return null;
+        }
+        blurMaterial.SetColor("_VignetteColor", Color.black);
     }
 }

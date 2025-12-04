@@ -35,5 +35,6 @@ Material:
     - _VignetteStrength: 1
     m_Colors:
     - _BlurCenter: {r: 0.5, g: 0.5, b: 0, a: 0}
+    - _VignetteColor: {r: 0, g: 0, b: 0, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

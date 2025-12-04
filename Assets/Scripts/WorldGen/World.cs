@@ -49,7 +49,7 @@ public class World : MonoBehaviour
     public static World instance { get; private set; }
     [field: SerializeField] public int seed { get; private set; } = 888;
     [SerializeField] GameObject chunkPrefab;
-    [SerializeField] int worldResolution = 4; // a grid of 4 by 4 chunks
+    public int worldResolution = 4; // a grid of 4 by 4 chunks
     [field: SerializeField] public int chunkResolution { get; private set; } = 10; // chunk is 16 cells by 16 cells
     [field: SerializeField] public float cellSize { get; private set; } = 1f; // in units
     Chunk[,] chunks;
@@ -123,9 +123,6 @@ public class World : MonoBehaviour
         {
             for (int j = 0; j < worldResolution; ++j)
             {
-                int chunkId = j * worldResolution + i;
-                if (chunkId == 0)
-                    continue;
                 chunks[i, j].GenerateTerrain();
             }
         }

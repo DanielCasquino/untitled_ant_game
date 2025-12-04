@@ -29,6 +29,7 @@ public class MainMenu : MonoBehaviour
         {
             yield return null;
         }
+        yield return new WaitForSecondsRealtime(1f);
 
         asyncLoad.allowSceneActivation = true;
     }

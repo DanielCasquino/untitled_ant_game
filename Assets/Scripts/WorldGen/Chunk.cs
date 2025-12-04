@@ -114,8 +114,6 @@ public class Chunk : MonoBehaviour
     public void GenerateTerrain()
     {
         // ty pmarini && lague
-        if (chunkId == 0)
-            return;
         GenerateMesh();
         GenerateOutlines();
         GenerateEdgeColliders();
@@ -151,7 +149,7 @@ public class Chunk : MonoBehaviour
         {
             for (int i = 0; i <= chunkResolution; ++i)
             {
-                if (chunkId == 0)
+                if (chunkId == 0 || chunkId == World.instance.worldResolution * World.instance.worldResolution - 1)
                 {
                     density[i, j] = false;
                     continue;

@@ -8,6 +8,7 @@ Shader "Custom/GaussianBlur"
         _BlurRadius ("Blur Radius", Float) = 0.3
         _BlurFalloff ("Blur Falloff", Float) = 0.2
         _VignetteStrength ("Vignette Strength", Float) = 0.5
+        _VignetteColor ("Vignette Color", Color) = (0, 0, 0, 1)
     }
     SubShader
     {
@@ -25,6 +26,7 @@ Shader "Custom/GaussianBlur"
             float _BlurRadius;
             float _BlurFalloff;
             float _VignetteStrength;
+            float4 _VignetteColor;
 
             float4 frag(v2f_img i) : SV_Target
             {
@@ -71,8 +73,7 @@ Shader "Custom/GaussianBlur"
                 float vignette = lerp(1.0, vignetteStrength, blurAmount); // darken based on blur falloff
 
                 float4 color = lerp(original, blurred, blurAmount);
-                color.rgb *= vignette; // zutomayo reference
-
+                color.rgb = lerp(color.rgb, _VignetteColor.rgb, 1.0 - vignette);
                 return color;
             }
             ENDCG
