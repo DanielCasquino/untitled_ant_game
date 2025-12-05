@@ -27,6 +27,7 @@ public class Player : MonoBehaviour
     public bool isInvis = false;
     float invisTime = 3f;
     [SerializeField] Timer invisTimer;
+    public SoundController sound;
 
     public void Damage()
     {
@@ -36,6 +37,7 @@ public class Player : MonoBehaviour
         health--;
         if (health > 0)
         {
+            sound.DañoAnt();
             playerDamaged?.Invoke();
             isInvis = true;
             invisTimer.Play();
@@ -43,6 +45,7 @@ public class Player : MonoBehaviour
         }
         else
         {
+            sound.DeadAnt();
             playerDied?.Invoke();
             Debug.Log("Player died");
         }
@@ -116,8 +119,10 @@ public class Player : MonoBehaviour
 
     PlayerState GetState()
     {
-        if (rb.linearVelocity.magnitude > 0)
+        if (rb.linearVelocity.magnitude > 0){
+            sound.RunAnt();
             return PlayerState.MOVING;
+        }
         else
             return PlayerState.IDLE;
     }

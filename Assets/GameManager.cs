@@ -7,6 +7,7 @@ public class GameManager : MonoBehaviour
     public bool gameInProgress = true;
     public GameObject gameOverCanvas;
     public GameObject escapedCanvas;
+    public SoundController sound;
 
     void Awake()
     {
@@ -33,6 +34,7 @@ public class GameManager : MonoBehaviour
 
     public void PlayerEscaped()
     {
+        sound.VictoryAnt();
         escapedCanvas.SetActive(true);
         gameInProgress = false;
         Time.timeScale = 0f;

@@ -96,6 +96,7 @@ public class Chunk : MonoBehaviour
     float cellSize;
     int chunkResolution;
     [SerializeField] EdgeColliderPool edgeColliderPool;
+    public SoundController sound;
 
     void Awake()
     {
@@ -109,6 +110,7 @@ public class Chunk : MonoBehaviour
         cellSize = World.instance.cellSize;
         chunkResolution = World.instance.chunkResolution;
         GenerateDensity();
+        sound = Player.instance.sound;
     }
 
     public void GenerateTerrain()
@@ -400,7 +402,11 @@ public class Chunk : MonoBehaviour
         if (density[i, j] == value)
             return;
 
-        bool updateLeft = i == 0;
+        if(isSet){
+            if (value) sound.ColocarBloque();
+            else sound.RomperBloque();
+}
+            bool updateLeft = i == 0;
         bool updateRight = i == chunkResolution;
         bool updateBottom = j == 0;
         bool updateTop = j == chunkResolution;
