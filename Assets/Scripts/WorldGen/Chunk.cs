@@ -110,7 +110,6 @@ public class Chunk : MonoBehaviour
         cellSize = World.instance.cellSize;
         chunkResolution = World.instance.chunkResolution;
         GenerateDensity();
-        sound = Player.instance.sound;
     }
 
     public void GenerateTerrain()

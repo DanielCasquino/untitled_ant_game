@@ -8,15 +8,14 @@ public class SpiderAnimator : MonoBehaviour
         animator = GetComponent<Animator>();
     }
 
-
-    public void OnStateChanged(EnemyState state)
+    public void OnStateChanged(AnimationState state)
     {
         switch (state)
         {
-            case EnemyState.IDLE:
+            case AnimationState.IDLE:
                 animator.SetBool("moving", false);
                 break;
-            case EnemyState.MOVING:
+            case AnimationState.MOVING:
                 animator.SetBool("moving", true);
                 break;
         }

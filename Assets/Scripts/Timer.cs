@@ -3,20 +3,12 @@ using UnityEngine.Events;
 
 public class Timer : MonoBehaviour
 {
-    public bool autoStart = false;
-    public bool oneShot = true;
-    public bool paused = true;
-    public float timeLeft;
-    public float waitTime;
+    public bool autoStart {get;private set;} = false;
+    public bool oneShot {get; private set;} = true;
+    public bool paused {get; private set;} = true;
+    public float timeLeft {get; private set;}
+    public float waitTime {get; private set;}
     public UnityEvent whenTimeout;
-
-    public void Initialize(bool autoStart = false, float waitTime = 1f)
-    {
-        paused = true;
-        this.autoStart = autoStart;
-        this.waitTime = waitTime;
-        timeLeft = waitTime;
-    }
 
     void Start()
     {
@@ -55,5 +47,15 @@ public class Timer : MonoBehaviour
     {
         timeLeft = 0;
         paused = true;
+    }
+
+    public void SetWaitTime(float _waitTime)
+    {
+        waitTime = _waitTime;
+    }
+
+    public void SetRandomWaitTime(Vector2 _waitTime)
+    {
+        waitTime = Random.Range(_waitTime.x, _waitTime.y);
     }
 }
