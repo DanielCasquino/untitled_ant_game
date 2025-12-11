@@ -3,11 +3,11 @@ using UnityEngine.Events;
 
 public class Timer : MonoBehaviour
 {
-    public bool autoStart {get;private set;} = false;
-    public bool oneShot {get; private set;} = true;
-    public bool paused {get; private set;} = true;
-    public float timeLeft {get; private set;}
-    public float waitTime {get; private set;}
+    public bool autoStart { get; private set; } = false;
+    public bool oneShot { get; private set; } = true;
+    public bool paused { get; private set; } = true;
+    public float timeLeft { get; private set; }
+    public float waitTime { get; private set; }
     public UnityEvent whenTimeout;
 
     void Start()

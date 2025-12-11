@@ -36,14 +36,14 @@ public class PlayerAnimator : MonoBehaviour
         }
     }
 
-    public void OnStateChanged(PlayerState state)
+    public void OnStateChanged(Player.AnimationState state)
     {
         switch (state)
         {
-            case PlayerState.IDLE:
+            case Player.AnimationState.IDLE:
                 animator.SetBool("moving", false);
                 break;
-            case PlayerState.MOVING:
+            case Player.AnimationState.MOVING:
                 animator.SetBool("moving", true);
                 break;
         }

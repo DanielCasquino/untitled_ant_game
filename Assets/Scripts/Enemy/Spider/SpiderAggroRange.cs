@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.Events;
 
 [RequireComponent(typeof(CircleCollider2D))]
-public class SpiderAggroRange: MonoBehaviour
+public class SpiderAggroRange : MonoBehaviour
 {
     public UnityEvent<Player> whenPlayerEnteredAggroZone;
     public UnityEvent whenPlayerExitedAggroZone;

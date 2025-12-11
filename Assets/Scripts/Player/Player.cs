@@ -1,23 +1,24 @@
 using UnityEngine;
 using UnityEngine.Events;
 
-public enum PlayerState
-{
-    IDLE = 0, MOVING
-}
+
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class Player : MonoBehaviour
 {
+    public enum AnimationState
+    {
+        IDLE = 0, MOVING
+    }
     public static Player instance { get; private set; }
     [SerializeField] PlayerCursor cursor;
     [SerializeField] PlayerInput input;
     Rigidbody2D rb;
     public UnityEvent<Vector3> whenDigged;
     public UnityEvent<Vector3> whenFilled;
-    public UnityEvent<PlayerState> whenStateChanged;
+    public UnityEvent<AnimationState> whenAnimationStateChanged;
     [SerializeField] float speed = 4f;
-    PlayerState state = PlayerState.IDLE;
+    AnimationState animationState = AnimationState.IDLE;
     [SerializeField] float accel = 20f;
     [SerializeField] float deccel = 30f;
     public int health;
@@ -93,13 +94,7 @@ public class Player : MonoBehaviour
         Vector2 force = Vector2.ClampMagnitude(velocityDelta * rb.mass / Time.fixedDeltaTime, fac * rb.mass);
         rb.AddForce(force);
 
-        PlayerState newState = GetState();
-
-        if (state == newState)
-            return;
-
-        whenStateChanged?.Invoke(newState);
-        state = newState;
+        ComputeAnimationState();
     }
 
     public void OnDig()
@@ -114,12 +109,19 @@ public class Player : MonoBehaviour
         World.instance.ModifyTerrain(cursor.transform.position, true);
     }
 
-    PlayerState GetState()
+    void ComputeAnimationState()
     {
-        if (rb.linearVelocity.magnitude > 0){
-            return PlayerState.MOVING;
-        }
+        AnimationState nextAnimationState;
+
+        if (rb.linearVelocity.magnitude > 0)
+            nextAnimationState = AnimationState.MOVING;
         else
-            return PlayerState.IDLE;
+            nextAnimationState = AnimationState.IDLE;
+
+        if (animationState == nextAnimationState)
+            return;
+
+        whenAnimationStateChanged?.Invoke(nextAnimationState);
+        animationState = nextAnimationState;
     }
 }
